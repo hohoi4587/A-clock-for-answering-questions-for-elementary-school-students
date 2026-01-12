@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JST Clock & Earth Rotation Counter</title>
+    <style>
+        :root {
+            --bg-color: #0f0f0f; /* 背景色 */
+            --text-color: #ffffff;
+            --accent-color: #555;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        /* 時計のスタイル */
+        #clock {
+            font-size: 15vw;
+            font-weight: 200;
+            letter-spacing: 0.02em;
+            margin-bottom: 1rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* カウンターを背景に同化させる設定 */
+        #earth-rotation-widget {
+            text-align: center;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            background: transparent; /* 背景を透明にして同化 */
+            padding: 10px;
+            border: none;           /* 枠線を消す */
+        }
+
+        .label-top {
+            font-size: 10px;
+            color: var(--accent-color);
+            letter-spacing: 0.25em;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        #earth-total-count {
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 0.05em;
+            color: #ffffff; /* 時計と同じ色にして統一感を出す */
+        }
+
+        .label-bottom {
+            font-size: 9px;
+            color: #333;
+            margin-top: 4px;
+            letter-spacing: 0.1em;
+        }
+
+        /* モバイル対応 */
+        @media (max-width: 600px) {
+            #clock { font-size: 22vw; }
+            #earth-total-count { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 日本時間時計 -->
+    <div id="clock">00:00:00</div>
+
+    <!-- 地球自転カウンター（背景同化版） -->
+    <div id="earth-rotation-widget">
+        <div class="label-top">Total Earth Rotations</div>
+        <div id="earth-total-count">0</div>
+        <div class="label-bottom">DAYS SINCE FORMATION</div>
+    </div>
+
+    <script>
+        // 時計の更新
+        function updateClock() {
+            const now = new Date();
+            const options = {
+                timeZone: 'Asia/Tokyo',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+            const formatter = new Intl.DateTimeFormat('ja-JP', options);
+            document.getElementById('clock').textContent = formatter.format(now);
+        }
+
+        // 地球自転数の更新
+        (function() {
+            const AGE = 4540000000;
+            const DPY = 365.24219;
+            const BASE = AGE * DPY;
+            const el = document.getElementById('earth-total-count');
+
+            function tick() {
+                const now = new Date();
+                const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const progress = (now - start) / 86400000;
+                // 数値をカンマ区切りで更新
+                el.innerText = Math.floor(BASE + progress).toLocaleString();
+                requestAnimationFrame(tick);
+            }
+            tick();
+        })();
+
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>
